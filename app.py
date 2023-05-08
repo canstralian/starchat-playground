@@ -211,28 +211,11 @@ custom_css = """
     display: block;
     margin-left: auto;
     margin-right: auto;
-    /* width: 40%; */
-}
-
-#chat-message .message {
-    /* padding: 15px; */
-    border-color: #a5b4fc;
-    background-color: #eef2ff;
-}
-
-#chat-message .message.bot {
-    /* padding: 15px; */
-    border-color: #e2e8f0;
-    background-color: #f8fafc;
 }
 
 #chat-message {
     font-size: 14px;
     min-height: 300px;
-}
-
-#parameters-accordion {
-    color: #0f172a;
 }
 
 """
