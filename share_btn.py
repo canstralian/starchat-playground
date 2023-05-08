@@ -76,7 +76,7 @@ ${outputTxt}`;
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
 
-	window.open(`https://huggingface.co/spaces/trl-lib/stack-llama/discussions/new?${paramsStr}`, '_blank');
+	window.open(`https://huggingface.co/spaces/HuggingFaceH4/star-chat-demo/discussions/new?${paramsStr}`, '_blank');
 
     shareBtnEl.style.removeProperty('pointer-events');
     shareIconEl.style.removeProperty('display');

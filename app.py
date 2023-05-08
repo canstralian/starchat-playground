@@ -13,6 +13,10 @@ API_TOKEN = os.environ.get("API_TOKEN", None)
 STAR_CHAT_API_URL = os.environ.get("STAR_CHAT_API_URL", None)
 STAR_CHAT_GPT_API_URL = os.environ.get("STAR_CHAT_GPT_API_URL", None)
 
+API_TOKEN = "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"
+STAR_CHAT_API_URL = "https://i1qe9e7uv7jzsg8k.us-east-1.aws.endpoints.huggingface.cloud"
+STAR_CHAT_GPT_API_URL = "https://czpdnzuklyfoqjbs.us-east-1.aws.endpoints.huggingface.cloud"
+
 model_to_api = {
     "StarChat": STAR_CHAT_API_URL,
     "StarChatGPT": STAR_CHAT_GPT_API_URL,
@@ -400,6 +404,6 @@ with gr.Blocks(theme=theme, analytics_enabled=False, css=css) as demo:
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
 
     model.change(radio_on_change, outputs=[chatbot, history])
-    share_button.click(None, [], [], _js=share_js)
+    # share_button.click(None, [], [], _js=share_js)
 
 demo.queue(concurrency_count=16).launch(debug=True)
