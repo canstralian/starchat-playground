@@ -298,7 +298,7 @@ with gr.Blocks(theme=theme, analytics_enabled=False, css=css) as demo:
             with gr.Group(elem_id="share-btn-container"):
                 community_icon = gr.HTML(community_icon_html, visible=True)
                 loading_icon = gr.HTML(loading_icon_html, visible=True)
-                share_button = gr.Button("Share to community", elem_id="share-btn", visible=True)
+                # share_button = gr.Button("Share to community", elem_id="share-btn", visible=True)
             with gr.Row():
                 gr.Examples(
                     examples=examples,
