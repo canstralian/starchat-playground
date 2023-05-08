@@ -148,15 +148,16 @@ def generate(
 
         chat = [(history[i].strip(), history[i + 1].strip()) for i in range(0, len(history) - 1, 2)]
 
-        if HF_TOKEN and do_save:
-            try:
-                print("Pushing prompt and completion to the Hub")
-                save_inputs_and_outputs(prompt, output, generate_kwargs)
-            except Exception as e:
-                print(e)
-
         yield chat, history, user_message, ""
-
+    
+    if HF_TOKEN and do_save:
+        try:
+            print("Pushing prompt and completion to the Hub")
+            save_inputs_and_outputs(prompt, output, generate_kwargs)
+        except Exception as e:
+            print(e)
+    
+    return chat, history, user_message, ""
 
 examples = [
     "How can I write a Python function to generate the nth Fibonacci number?",
