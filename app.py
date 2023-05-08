@@ -224,11 +224,11 @@ custom_css = """
 }
 
 #system-message {
-    min-height: 622px;
+    min-height: 527px;
 }
 
 #system-message textarea {
-    min-height: 562px;
+    min-height: 462px;
 }
 
 #chat-message {
@@ -270,7 +270,7 @@ with gr.Blocks(theme=theme, analytics_enabled=False, css=custom_css) as demo:
                 label="System prompt",
             )
 
-        with gr.Column(scale=2):
+        with gr.Column(scale=1):
             with gr.Box():
                 output = gr.Markdown()
                 chatbot = gr.Chatbot(elem_id="chat-message", label="Chat")
