@@ -126,6 +126,7 @@ def generate(
         do_sample=True,
         truncate=999,
         seed=42,
+        repetition_penalty=1.2,
         stop_sequences=["<|end|>"],
     )
 
@@ -165,30 +166,30 @@ examples = [
 ]
 
 
-def regenerate(
-    system_message,
-    user_message,
-    chatbot,
-    history,
-    temperature=0.5,
-    top_p=0.25,
-    top_k=50,
-    max_new_tokens=512,
-    do_save=True,
-):
-    # Do nothing if there's no history
-    if has_no_history(chatbot, history):
-        return (
-            chatbot,
-            history,
-            user_message,
-            "",
-        )
+# def regenerate(
+#     system_message,
+#     user_message,
+#     chatbot,
+#     history,
+#     temperature=0.5,
+#     top_p=0.25,
+#     top_k=50,
+#     max_new_tokens=512,
+#     do_save=True,
+# ):
+#     # Do nothing if there's no history
+#     if has_no_history(chatbot, history):
+#         return (
+#             chatbot,
+#             history,
+#             user_message,
+#             "",
+#         )
 
-    chatbot = chatbot[:-1]
-    history = history[:-2]
+#     chatbot = chatbot[:-1]
+#     history = history[:-2]
 
-    return generate(system_message, user_message, chatbot, history, temperature, top_p, top_k, max_new_tokens, do_save)
+#     return generate(system_message, user_message, chatbot, history, temperature, top_p, top_k, max_new_tokens, do_save)
 
 
 def clear_chat():
@@ -275,7 +276,7 @@ with gr.Blocks(theme=theme, analytics_enabled=False, css=custom_css) as demo:
             user_message = gr.Textbox(placeholder="Enter your message here", show_label=False, elem_id="q-input")
             with gr.Row():
                 send_button = gr.Button("Send", elem_id="send-btn", visible=True)
-                regenerate_button = gr.Button("Regenerate", elem_id="send-btn", visible=True)
+                # regenerate_button = gr.Button("Regenerate", elem_id="send-btn", visible=True)
 
                 clear_chat_button = gr.Button("Clear chat", elem_id="clear-btn", visible=True)
 
@@ -366,21 +367,21 @@ with gr.Blocks(theme=theme, analytics_enabled=False, css=custom_css) as demo:
         outputs=[chatbot, history, last_user_message, user_message],
     )
 
-    regenerate_button.click(
-        regenerate,
-        inputs=[
-            system_message,
-            last_user_message,
-            chatbot,
-            history,
-            temperature,
-            top_p,
-            top_k,
-            max_new_tokens,
-            do_save,
-        ],
-        outputs=[chatbot, history, last_user_message, user_message],
-    )
+    # regenerate_button.click(
+    #     regenerate,
+    #     inputs=[
+    #         system_message,
+    #         last_user_message,
+    #         chatbot,
+    #         history,
+    #         temperature,
+    #         top_p,
+    #         top_k,
+    #         max_new_tokens,
+    #         do_save,
+    #     ],
+    #     outputs=[chatbot, history, last_user_message, user_message],
+    # )
 
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
     # share_button.click(None, [], [], _js=share_js)
