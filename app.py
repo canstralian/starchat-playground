@@ -247,9 +247,9 @@ message pending
 
 """
 
-css = share_btn_css + custom_css
+# css = share_btn_css + custom_css
 
-with gr.Blocks(theme=theme, analytics_enabled=False, css=css) as demo:
+with gr.Blocks(theme=theme, analytics_enabled=False, css=custom_css) as demo:
     gr.HTML(title)
     gr.Image("StarCoderBanner.png", elem_id="banner-image", show_label=False)
     gr.Markdown(
