@@ -264,7 +264,11 @@ with gr.Blocks(theme=theme, analytics_enabled=False, css=custom_css) as demo:
 
     with gr.Row():
         with gr.Column(scale=1):
-            system_message = gr.Textbox(elem_id="system-message", label="System prompt")
+            system_message = gr.Textbox(
+                elem_id="system-message",
+                placeholder="Below is a conversation between a human user and a helpful AI coding assistant.",
+                label="System prompt",
+            )
 
         with gr.Column(scale=2):
             with gr.Box():
