@@ -266,14 +266,14 @@ with gr.Blocks(theme=theme, analytics_enabled=False, css=custom_css) as demo:
             label="Store data",
             info="You agree to the storage of your prompt and generated text for research and development purposes:",
         )
-
-    with gr.Row():
-        with gr.Box(elem_id="chat-box"):
+    with gr.Accordion(label="System Prompt", open=False, elem_id="parameters-accordion"):
             system_message = gr.Textbox(
                 elem_id="system-message",
                 placeholder="Below is a conversation between a human user and a helpful AI coding assistant.",
-                label="System prompt",
+                show_label=False
             )
+    with gr.Row():
+        with gr.Box():
             output = gr.Markdown()
             chatbot = gr.Chatbot(elem_id="chat-message", label="Chat")
 
