@@ -19,13 +19,13 @@ client = Client(
     headers={"Authorization": f"Bearer {API_TOKEN}"},
 )
 
-theme = gr.themes.Monochrome(
-    primary_hue="indigo",
-    secondary_hue="blue",
-    neutral_hue="slate",
-    radius_size=gr.themes.sizes.radius_sm,
-    font=[gr.themes.GoogleFont("Open Sans"), "ui-sans-serif", "system-ui", "sans-serif"],
-)
+# theme = gr.themes.Monochrome(
+#     primary_hue="indigo",
+#     secondary_hue="blue",
+#     neutral_hue="slate",
+#     radius_size=gr.themes.sizes.radius_sm,
+#     font=[gr.themes.GoogleFont("Open Sans"), "ui-sans-serif", "system-ui", "sans-serif"],
+# )
 
 if HF_TOKEN:
     try:
@@ -220,9 +220,7 @@ custom_css = """
 
 """
 
-# css = share_btn_css + custom_css
-
-with gr.Blocks(theme=theme, analytics_enabled=False, css=custom_css) as demo:
+with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
     gr.HTML(title)
 
     with gr.Row():
