@@ -266,8 +266,8 @@ with gr.Blocks(theme=theme, analytics_enabled=False, css=custom_css) as demo:
         with gr.Column(scale=1):
             system_message = gr.Textbox(
                 elem_id="system-message",
-                placeholder=API_TOKEN,
-                label=API_URL,
+                placeholder="Below is a conversation between a human user and a helpful AI coding assistant",
+                label="System prompt",
             )
 
         with gr.Column(scale=1):
