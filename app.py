@@ -34,7 +34,7 @@ if HF_TOKEN:
         pass
 
     repo = Repository(
-        local_dir="./data/", clone_from="trl-lib/star-chat-prompts", use_auth_token=HF_TOKEN, repo_type="dataset"
+        local_dir="./data/", clone_from="HuggingFaceH4/starchat-prompts", use_auth_token=HF_TOKEN, repo_type="dataset"
     )
     repo.git_pull()
 
@@ -71,7 +71,6 @@ def has_no_history(chatbot, history):
 
 
 def generate(
-    # model,
     system_message,
     user_message,
     chatbot,
@@ -126,7 +125,7 @@ def generate(
         top_p=top_p,
         repetition_penalty=repetition_penalty,
         do_sample=True,
-        truncate=999,
+        truncate=2048,
         seed=42,
         stop_sequences=["<|end|>"],
     )
@@ -149,50 +148,24 @@ def generate(
         chat = [(history[i].strip(), history[i + 1].strip()) for i in range(0, len(history) - 1, 2)]
 
         yield chat, history, user_message, ""
-    
+
     if HF_TOKEN and do_save:
         try:
             print("Pushing prompt and completion to the Hub")
             save_inputs_and_outputs(prompt, output, generate_kwargs)
         except Exception as e:
             print(e)
-    
+
     return chat, history, user_message, ""
+
 
 examples = [
     "How can I write a Python function to generate the nth Fibonacci number?",
-    "What's the capital city of Brunei?",
+    "Draw me a map of the world using geopandas. Make it so that only Germany and Spain are colored red.",
     "How do I get the current date using shell commands? Explain how it works.",
     "What's the meaning of life?",
     "Write a function in Python to reverse words in a given string.",
 ]
-
-
-# def regenerate(
-#     system_message,
-#     user_message,
-#     chatbot,
-#     history,
-#     temperature,
-#     top_k,
-#     top_p,
-#     max_new_tokens,
-#     repetition_penalty,
-#     do_save=True,
-# ):
-#     # Do nothing if there's no history
-#     if has_no_history(chatbot, history):
-#         return (
-#             chatbot,
-#             history,
-#             user_message,
-#             "",
-#         )
-
-#     chatbot = chatbot[:-1]
-#     history = history[:-2]
-
-#     return generate(system_message, user_message, chatbot, history, temperature, top_k, top_p, max_new_tokens, repetition_penalty, do_save)
 
 
 def clear_chat():
@@ -205,7 +178,7 @@ def process_example(args):
     return [x, y]
 
 
-title = """<h1 align="center">⭐ Chat with StarCoder Demo 💬</h1>"""
+title = """<h1 align="center">⭐ StarChat Playground 💬</h1>"""
 custom_css = """
 #banner-image {
     display: block;
@@ -228,19 +201,17 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             gr.Image("StarCoderBanner.png", elem_id="banner-image", show_label=False)
         with gr.Column():
             gr.Markdown(
-        """
-            💻 This demo showcases an instruction fine-tuned model based on **[StarCoder](https://huggingface.co/bigcode/starcoder)**, a 16B parameter model trained on one trillion tokens sourced from 80+ programming languages, GitHub issues, Git commits, and Jupyter notebooks (all permissively licensed). 
-            
-            🤗 With an enterprise-friendly license, 8,192 token context length, and fast large-batch inference via [multi-query attention](https://arxiv.org/abs/1911.02150), **StarCoder** is currently the best open-source choice for code-based applications. 
-            
+                """
+            💻 This demo showcases an **alpha** version of **[StarChat](https://huggingface.co/HuggingFaceH4/starchat-alpha)**, a variant of **[StarCoderBase](https://huggingface.co/bigcode/starcoderbase)** that was fine-tuned on the [Dolly](https://huggingface.co/datasets/databricks/databricks-dolly-15k) and [OpenAssistant](https://huggingface.co/datasets/OpenAssistant/oasst1) datasets to act as a helpful coding assistant.  The base model has 16B parameters and was pretrained on one trillion tokens sourced from 80+ programming languages, GitHub issues, Git commits, and Jupyter notebooks (all permissively licensed).
+
             📝 For more details, check out our [blog post]().
 
-            ⚠️ **Intended Use**: this app and its [supporting model](https://huggingface.co/HuggingFaceH4/starcoderbase-finetuned-oasst1) are provided as educational tools to explain instruction fine-tuning; not to serve as replacement for human expertise. For more details on the model's limitations in terms of factuality and biases, see the [model card](https://huggingface.co/HuggingFaceH4/starcoderbase-finetuned-oasst1#bias-risks-and-limitations).
+            ⚠️ **Intended Use**: this app and its [supporting model](https://huggingface.co/HuggingFaceH4/starchat-alpha) are provided as educational tools to explain large language model fine-tuning; not to serve as replacement for human expertise. In particular, this alpha version of **StarChat** has not been aligned to human preferences with techniques like RLHF, so the model can produce problematic outputs (especially when prompted to do so).  For more details on the model's limitations in terms of factuality and biases, see the [model card](https://huggingface.co/HuggingFaceH4/starchat-alpha#bias-risks-and-limitations).
 
-            ⚠️ **Data Collection**: by default, we are collecting the prompts entered in this app to further improve and evaluate the model. Do NOT share any personal or sensitive information while using the app! You can opt out of this data collection by removing the checkbox below.
+            ⚠️ **Data Collection**: by default, we are collecting the prompts entered in this app to further improve and evaluate the model. Do **NOT** share any personal or sensitive information while using the app! You can opt out of this data collection by removing the checkbox below.
     """
-    )
-            
+            )
+
     with gr.Row():
         do_save = gr.Checkbox(
             value=True,
@@ -248,11 +219,11 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             info="You agree to the storage of your prompt and generated text for research and development purposes:",
         )
     with gr.Accordion(label="System Prompt", open=False, elem_id="parameters-accordion"):
-            system_message = gr.Textbox(
-                elem_id="system-message",
-                placeholder="Below is a conversation between a human user and a helpful AI coding assistant.",
-                show_label=False
-            )
+        system_message = gr.Textbox(
+            elem_id="system-message",
+            placeholder="Below is a conversation between a human user and a helpful AI coding assistant.",
+            show_label=False,
+        )
     with gr.Row():
         with gr.Box():
             output = gr.Markdown()
@@ -263,7 +234,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             user_message = gr.Textbox(placeholder="Enter your message here", show_label=False, elem_id="q-input")
             with gr.Row():
                 send_button = gr.Button("Send", elem_id="send-btn", visible=True)
-                
+
                 # regenerate_button = gr.Button("Regenerate", elem_id="send-btn", visible=True)
 
                 clear_chat_button = gr.Button("Clear chat", elem_id="clear-btn", visible=True)
@@ -298,7 +269,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 )
                 max_new_tokens = gr.Slider(
                     label="Max new tokens",
-                    value=384,
+                    value=512,
                     minimum=0,
                     maximum=2048,
                     step=4,
@@ -326,7 +297,6 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                     fn=process_example,
                     outputs=[output],
                 )
-
 
     history = gr.State([])
     # To clear out "message" input textbox and use this to regenerate message
@@ -366,41 +336,24 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
         outputs=[chatbot, history, last_user_message, user_message],
     )
 
-    # regenerate_button.click(
-    #     regenerate,
-    #     inputs=[
-    #         system_message,
-    #         last_user_message,
-    #         chatbot,
-    #         history,
-    #         temperature,
-    #         top_k,
-    #         top_p,
-    #         max_new_tokens,
-    #         repetition_penalty,
-    #         do_save,
-    #     ],
-    #     outputs=[chatbot, history, last_user_message, user_message],
-    # )
-
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
     # share_button.click(None, [], [], _js=share_js)
-    with gr.Row():
-        with gr.Column():
-            gr.Image("StarCoderBanner.png", elem_id="banner-image", show_label=False)
-        with gr.Column():
-            gr.Markdown(
-        """
-            💻 This demo showcases an instruction fine-tuned model based on **[StarCoder](https://huggingface.co/bigcode/starcoder)**, a 16B parameter model trained on one trillion tokens sourced from 80+ programming languages, GitHub issues, Git commits, and Jupyter notebooks (all permissively licensed). 
-            
-            🤗 With an enterprise-friendly license, 8,192 token context length, and fast large-batch inference via [multi-query attention](https://arxiv.org/abs/1911.02150), **StarCoder** is currently the best open-source choice for code-based applications. 
-            
-            📝 For more details, check out our [blog post]().
+    # with gr.Row():
+    #     with gr.Column():
+    #         gr.Image("StarCoderBanner.png", elem_id="banner-image", show_label=False)
+    #     with gr.Column():
+    #         gr.Markdown(
+    #     """
+    #         💻 This demo showcases an instruction fine-tuned model based on **[StarCoder](https://huggingface.co/bigcode/starcoder)**, a 16B parameter model trained on one trillion tokens sourced from 80+ programming languages, GitHub issues, Git commits, and Jupyter notebooks (all permissively licensed).
 
-            ⚠️ **Intended Use**: this app and its [supporting model](https://huggingface.co/HuggingFaceH4/starcoderbase-finetuned-oasst1) are provided as educational tools to explain instruction fine-tuning; not to serve as replacement for human expertise. For more details on the model's limitations in terms of factuality and biases, see the [model card](https://huggingface.co/HuggingFaceH4/starcoderbase-finetuned-oasst1#bias-risks-and-limitations).
+    #         🤗 With an enterprise-friendly license, 8,192 token context length, and fast large-batch inference via [multi-query attention](https://arxiv.org/abs/1911.02150), **StarCoder** is currently the best open-source choice for code-based applications.
 
-            ⚠️ **Data Collection**: by default, we are collecting the prompts entered in this app to further improve and evaluate the model. Do NOT share any personal or sensitive information while using the app! You can opt out of this data collection by removing the checkbox below.
-    """
-    )
+    #         📝 For more details, check out our [blog post]().
+
+    #         ⚠️ **Intended Use**: this app and its [supporting model](https://huggingface.co/HuggingFaceH4/starcoderbase-finetuned-oasst1) are provided as educational tools to explain instruction fine-tuning; not to serve as replacement for human expertise. For more details on the model's limitations in terms of factuality and biases, see the [model card](https://huggingface.co/HuggingFaceH4/starcoderbase-finetuned-oasst1#bias-risks-and-limitations).
+
+    #         ⚠️ **Data Collection**: by default, we are collecting the prompts entered in this app to further improve and evaluate the model. Do NOT share any personal or sensitive information while using the app! You can opt out of this data collection by removing the checkbox below.
+    # """
+    # )
 
 demo.queue(concurrency_count=16).launch(debug=True)

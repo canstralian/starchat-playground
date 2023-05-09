@@ -1,6 +1,6 @@
 ---
-title: StarChat Demo
-emoji: 💬
+title: StarChat Playground
+emoji: ⭐️💬
 colorFrom: pink
 colorTo: indigo
 sdk: gradio
