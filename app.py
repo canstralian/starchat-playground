@@ -197,7 +197,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
 
     with gr.Row():
         with gr.Column():
-            gr.Image("StarCoderBanner.png", elem_id="banner-image", show_label=False)
+            gr.Image("thumbnail.png", elem_id="banner-image", show_label=False)
         with gr.Column():
             gr.Markdown(
                 """
