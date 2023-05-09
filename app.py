@@ -125,7 +125,7 @@ def generate(
         top_p=top_p,
         repetition_penalty=repetition_penalty,
         do_sample=True,
-        truncate=2048,
+        truncate=999,
         seed=42,
         stop_sequences=["<|end|>"],
     )
@@ -161,7 +161,6 @@ def generate(
 
 examples = [
     "How can I write a Python function to generate the nth Fibonacci number?",
-    "Draw me a map of the world using geopandas. Make it so that only Germany and Spain are colored red.",
     "How do I get the current date using shell commands? Explain how it works.",
     "What's the meaning of life?",
     "Write a function in Python to reverse words in a given string.",
@@ -269,9 +268,9 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 )
                 max_new_tokens = gr.Slider(
                     label="Max new tokens",
-                    value=512,
+                    value=256,
                     minimum=0,
-                    maximum=2048,
+                    maximum=512,
                     step=4,
                     interactive=True,
                     info="The maximum numbers of new tokens",
