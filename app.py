@@ -19,7 +19,6 @@ client = Client(
     headers={"Authorization": f"Bearer {API_TOKEN}"},
 )
 
-repo = None
 if HF_TOKEN:
     try:
         shutil.rmtree("./data/")
@@ -29,15 +28,14 @@ if HF_TOKEN:
     repo = Repository(
         local_dir="./data/", clone_from="HuggingFaceH4/starchat-prompts", use_auth_token=HF_TOKEN, repo_type="dataset"
     )
+    repo.git_pull()
 
 
 def save_inputs_and_outputs(inputs, outputs, generate_kwargs):
-    if repo is not None:
-        repo.git_pull(rebase=True)
-        with open(os.path.join("data", "prompts.jsonl"), "a") as f:
-            json.dump({"inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}, f, ensure_ascii=False)
-            f.write("\n")
-            repo.push_to_hub()
+    with open(os.path.join("data", "prompts.jsonl"), "a") as f:
+        json.dump({"inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}, f, ensure_ascii=False)
+        f.write("\n")
+        repo.push_to_hub()
 
 
 def get_total_inputs(inputs, chatbot, preprompt, user_name, assistant_name, sep):
