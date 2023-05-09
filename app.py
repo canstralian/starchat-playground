@@ -198,7 +198,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 """
             💻 This demo showcases an **alpha** version of **[StarChat](https://huggingface.co/HuggingFaceH4/starchat-alpha)**, a variant of **[StarCoderBase](https://huggingface.co/bigcode/starcoderbase)** that was fine-tuned on the [Dolly](https://huggingface.co/datasets/databricks/databricks-dolly-15k) and [OpenAssistant](https://huggingface.co/datasets/OpenAssistant/oasst1) datasets to act as a helpful coding assistant.  The base model has 16B parameters and was pretrained on one trillion tokens sourced from 80+ programming languages, GitHub issues, Git commits, and Jupyter notebooks (all permissively licensed).
 
-            📝 For more details, check out our [blog post]().
+            📝 For more details, check out our [blog post](https://huggingface.co/blog/starchat-alpha).
 
             ⚠️ **Intended Use**: this app and its [supporting model](https://huggingface.co/HuggingFaceH4/starchat-alpha) are provided as educational tools to explain large language model fine-tuning; not to serve as replacement for human expertise.
 
