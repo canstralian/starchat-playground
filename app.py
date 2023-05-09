@@ -155,7 +155,8 @@ examples = [
     "How can I write a Python function to generate the nth Fibonacci number?",
     "How do I get the current date using shell commands? Explain how it works.",
     "What's the meaning of life?",
-    "Write a function in Python to reverse words in a given string.",
+    "Write a function in Javascript to reverse words in a given string.",
+    "Give the following data {'Name':['Tom', 'Brad', 'Kyle', 'Jerry'], 'Age':[20, 21, 19, 18], 'Height' : [6.1, 5.9, 6.0, 6.1]}. Can you plot one graph with two subplots as columns. The first is a bar graph showing the height of each person. The second is a bargraph showing the age of each person? Draw the graph in seaborn talk mode.",
 ]
 
 
@@ -261,7 +262,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 )
                 max_new_tokens = gr.Slider(
                     label="Max new tokens",
-                    value=256,
+                    value=512,
                     minimum=0,
                     maximum=512,
                     step=4,
