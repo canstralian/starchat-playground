@@ -157,6 +157,9 @@ examples = [
     "What's the meaning of life?",
     "Write a function in Javascript to reverse words in a given string.",
     "Give the following data {'Name':['Tom', 'Brad', 'Kyle', 'Jerry'], 'Age':[20, 21, 19, 18], 'Height' : [6.1, 5.9, 6.0, 6.1]}. Can you plot one graph with two subplots as columns. The first is a bar graph showing the height of each person. The second is a bargraph showing the age of each person? Draw the graph in seaborn talk mode.",
+    "Create a regex to extract dates from logs",
+    "How to decode JSON into a typescript object",
+    "Write a list into a jsonlines file and save locally",
 ]
 
 
