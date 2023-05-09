@@ -19,14 +19,6 @@ client = Client(
     headers={"Authorization": f"Bearer {API_TOKEN}"},
 )
 
-# theme = gr.themes.Monochrome(
-#     primary_hue="indigo",
-#     secondary_hue="blue",
-#     neutral_hue="slate",
-#     radius_size=gr.themes.sizes.radius_sm,
-#     font=[gr.themes.GoogleFont("Open Sans"), "ui-sans-serif", "system-ui", "sans-serif"],
-# )
-
 if HF_TOKEN:
     try:
         shutil.rmtree("./data/")
@@ -84,7 +76,7 @@ def generate(
 ):
     # Don't return meaningless message when the input is empty
     if not user_message:
-        return chatbot, history, user_message, ""
+        print("Empty input")
 
     history.append(user_message)
 
@@ -284,10 +276,10 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                     interactive=True,
                     info="The parameter for repetition penalty. 1.0 means no penalty.",
                 )
-            # with gr.Group(elem_id="share-btn-container"):
-            #     community_icon = gr.HTML(community_icon_html, visible=True)
-            #     loading_icon = gr.HTML(loading_icon_html, visible=True)
-            # share_button = gr.Button("Share to community", elem_id="share-btn", visible=True)
+            with gr.Group(elem_id="share-btn-container"):
+                community_icon = gr.HTML(community_icon_html, visible=True)
+                loading_icon = gr.HTML(loading_icon_html, visible=True)
+            share_button = gr.Button("Share to community", elem_id="share-btn", visible=True)
             with gr.Row():
                 gr.Examples(
                     examples=examples,
@@ -336,23 +328,6 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
     )
 
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
-    # share_button.click(None, [], [], _js=share_js)
-    # with gr.Row():
-    #     with gr.Column():
-    #         gr.Image("StarCoderBanner.png", elem_id="banner-image", show_label=False)
-    #     with gr.Column():
-    #         gr.Markdown(
-    #     """
-    #         💻 This demo showcases an instruction fine-tuned model based on **[StarCoder](https://huggingface.co/bigcode/starcoder)**, a 16B parameter model trained on one trillion tokens sourced from 80+ programming languages, GitHub issues, Git commits, and Jupyter notebooks (all permissively licensed).
-
-    #         🤗 With an enterprise-friendly license, 8,192 token context length, and fast large-batch inference via [multi-query attention](https://arxiv.org/abs/1911.02150), **StarCoder** is currently the best open-source choice for code-based applications.
-
-    #         📝 For more details, check out our [blog post]().
-
-    #         ⚠️ **Intended Use**: this app and its [supporting model](https://huggingface.co/HuggingFaceH4/starcoderbase-finetuned-oasst1) are provided as educational tools to explain instruction fine-tuning; not to serve as replacement for human expertise. For more details on the model's limitations in terms of factuality and biases, see the [model card](https://huggingface.co/HuggingFaceH4/starcoderbase-finetuned-oasst1#bias-risks-and-limitations).
-
-    #         ⚠️ **Data Collection**: by default, we are collecting the prompts entered in this app to further improve and evaluate the model. Do NOT share any personal or sensitive information while using the app! You can opt out of this data collection by removing the checkbox below.
-    # """
-    # )
+    share_button.click(None, [], [], _js=share_js)
 
 demo.queue(concurrency_count=16).launch(debug=True)
