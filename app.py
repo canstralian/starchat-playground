@@ -19,6 +19,7 @@ client = Client(
     headers={"Authorization": f"Bearer {API_TOKEN}"},
 )
 
+repo = None
 if HF_TOKEN:
     try:
         shutil.rmtree("./data/")
@@ -32,9 +33,11 @@ if HF_TOKEN:
 
 
 def save_inputs_and_outputs(inputs, outputs, generate_kwargs):
-    with open(os.path.join("data", "prompts.jsonl"), "a") as f:
-        json.dump({"inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}, f, ensure_ascii=False)
-        f.write("\n")
+    if repo is not None:
+        repo.git_pull(rebase=True)
+        with open(os.path.join("data", "prompts.jsonl"), "a") as f:
+            json.dump({"inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}, f, ensure_ascii=False)
+            f.write("\n")
         repo.push_to_hub()
 
 
