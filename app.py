@@ -29,7 +29,6 @@ if HF_TOKEN:
     repo = Repository(
         local_dir="./data/", clone_from="HuggingFaceH4/starchat-prompts", use_auth_token=HF_TOKEN, repo_type="dataset"
     )
-    repo.git_pull(rebase=True)
 
 
 def save_inputs_and_outputs(inputs, outputs, generate_kwargs):
