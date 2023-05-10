@@ -32,10 +32,13 @@ if HF_TOKEN:
     repo.git_pull()
 
 
-def save_inputs_and_outputs(inputs, outputs, generate_kwargs):
+def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs):
+    current_hour = now.strftime("%Y-%m-%d_%H")
+    file_name = f"prompts_{current_hour}.jsonl"
+    
     if repo is not None:
         repo.git_pull(rebase=True)
-        with open(os.path.join("data", "prompts.jsonl"), "a") as f:
+        with open(os.path.join("data", file_name), "a") as f:
             json.dump({"inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}, f, ensure_ascii=False)
             f.write("\n")
         repo.push_to_hub()
@@ -146,8 +149,10 @@ def generate(
 
     if HF_TOKEN and do_save:
         try:
-            print("Pushing prompt and completion to the Hub")
-            save_inputs_and_outputs(prompt, output, generate_kwargs)
+            now = datetime.datetime.now()
+            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            print(f"[{current_time}] Pushing prompt and completion to the Hub")
+            save_inputs_and_outputs(now, prompt, output, generate_kwargs)
         except Exception as e:
             print(e)
 
