@@ -36,11 +36,13 @@ if HF_TOKEN:
 def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs):
     current_hour = now.strftime("%Y-%m-%d_%H")
     file_name = f"prompts_{current_hour}.jsonl"
-    
+
     if repo is not None:
         repo.git_pull(rebase=True)
-        with open(os.path.join("data", file_name), "a") as f:
-            json.dump({"inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}, f, ensure_ascii=False)
+        with open(os.path.join("data", file_name), "a", encoding="utf-8") as f:
+            json.dump(
+                {"inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}, f, ensure_ascii=False
+            )
             f.write("\n")
         repo.push_to_hub()
 
