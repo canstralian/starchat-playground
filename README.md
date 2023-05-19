@@ -1,6 +1,6 @@
 ---
 title: StarChat Playground
-emoji: ⭐️💬
+emoji: xmc
 colorFrom: pink
 colorTo: indigo
 sdk: gradio
