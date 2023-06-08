@@ -166,8 +166,13 @@ def generate(
         else:
             history[-1] = output
 
+        # chat = [
+        #     (wrap_html_code(history[i].strip()), wrap_html_code(history[i + 1].strip()))
+        #     for i in range(0, len(history) - 1, 2)
+        # ]
+
         chat = [
-            (wrap_html_code(history[i].strip()), wrap_html_code(history[i + 1].strip()))
+            (history[i].strip(), history[i + 1].strip())
             for i in range(0, len(history) - 1, 2)
         ]
 
@@ -352,7 +357,6 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             do_save,
         ],
         outputs=[chatbot, history, last_user_message, user_message],
-        show_progress=False,
     )
 
     send_button.click(
@@ -371,7 +375,6 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             do_save,
         ],
         outputs=[chatbot, history, last_user_message, user_message],
-        show_progress=False,
     )
 
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
