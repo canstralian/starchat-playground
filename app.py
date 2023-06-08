@@ -166,15 +166,12 @@ def generate(
         else:
             history[-1] = output
 
-        # chat = [
-        #     (wrap_html_code(history[i].strip()), wrap_html_code(history[i + 1].strip()))
-        #     for i in range(0, len(history) - 1, 2)
-        # ]
-
         chat = [
-            (history[i].strip(), history[i + 1].strip())
+            (wrap_html_code(history[i].strip()), wrap_html_code(history[i + 1].strip()))
             for i in range(0, len(history) - 1, 2)
         ]
+
+        # chat = [(history[i].strip(), history[i + 1].strip()) for i in range(0, len(history) - 1, 2)]
 
         yield chat, history, user_message, ""
 
