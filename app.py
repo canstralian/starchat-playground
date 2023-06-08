@@ -13,12 +13,12 @@ from share_btn import (community_icon_html, loading_icon_html, share_btn_css,
 
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 API_TOKEN = os.environ.get("API_TOKEN", None)
-API_URL = os.environ.get("API_URL", None)
 
-client = Client(
-    API_URL,
-    headers={"Authorization": f"Bearer {API_TOKEN}"},
-)
+model2endpoint = {
+    "starchat-alpha": "https://api-inference.huggingface.co/models/HuggingFaceH4/starcoderbase-finetuned-oasst1",
+    "starchat-beta": "https://ddimh86h0wqthbhy.us-east-1.aws.endpoints.huggingface.cloud",
+}
+model_names = list(model2endpoint.keys())
 
 repo = None
 if HF_TOKEN:
@@ -28,12 +28,15 @@ if HF_TOKEN:
         pass
 
     repo = Repository(
-        local_dir="./data/", clone_from="HuggingFaceH4/starchat-prompts", use_auth_token=HF_TOKEN, repo_type="dataset"
+        local_dir="./data/",
+        clone_from="HuggingFaceH4/starchat_playground_dialogues",
+        use_auth_token=HF_TOKEN,
+        repo_type="dataset",
     )
     repo.git_pull()
 
 
-def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs):
+def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs, model):
     current_hour = now.strftime("%Y-%m-%d_%H")
     file_name = f"prompts_{current_hour}.jsonl"
 
@@ -41,7 +44,9 @@ def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs):
         repo.git_pull(rebase=True)
         with open(os.path.join("data", file_name), "a", encoding="utf-8") as f:
             json.dump(
-                {"inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}, f, ensure_ascii=False
+                {"model": model, "inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs},
+                f,
+                ensure_ascii=False,
             )
             f.write("\n")
         repo.push_to_hub()
@@ -72,6 +77,7 @@ def has_no_history(chatbot, history):
 
 
 def generate(
+    model_name,
     system_message,
     user_message,
     chatbot,
@@ -83,6 +89,10 @@ def generate(
     repetition_penalty,
     do_save=True,
 ):
+    client = Client(
+        model2endpoint[model_name],
+        headers={"Authorization": f"Bearer {API_TOKEN}"},
+    )
     # Don't return meaningless message when the input is empty
     if not user_message:
         print("Empty input")
@@ -155,7 +165,7 @@ def generate(
             now = datetime.datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             print(f"[{current_time}] Pushing prompt and completion to the Hub")
-            save_inputs_and_outputs(now, prompt, output, generate_kwargs)
+            save_inputs_and_outputs(now, prompt, output, generate_kwargs, model_name)
         except Exception as e:
             print(e)
 
@@ -207,15 +217,15 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
         with gr.Column():
             gr.Markdown(
                 """
-            💻 This demo showcases an **alpha** version of **[StarChat](https://huggingface.co/HuggingFaceH4/starchat-alpha)**, a variant of **[StarCoderBase](https://huggingface.co/bigcode/starcoderbase)** that was fine-tuned on the [Dolly](https://huggingface.co/datasets/databricks/databricks-dolly-15k) and [OpenAssistant](https://huggingface.co/datasets/OpenAssistant/oasst1) datasets to act as a helpful coding assistant.  The base model has 16B parameters and was pretrained on one trillion tokens sourced from 80+ programming languages, GitHub issues, Git commits, and Jupyter notebooks (all permissively licensed).
+            💻 This demo showcases a series of **[StarChat](https://huggingface.co/models?search=huggingfaceh4/starchat)** language models, which are fine-tuned versions of the StarCoder family to act as helpful coding assistants.  The base model has 16B parameters and was pretrained on one trillion tokens sourced from 80+ programming languages, GitHub issues, Git commits, and Jupyter notebooks (all permissively licensed).
 
             📝 For more details, check out our [blog post](https://huggingface.co/blog/starchat-alpha).
 
-            ⚠️ **Intended Use**: this app and its [supporting model](https://huggingface.co/HuggingFaceH4/starchat-alpha) are provided as educational tools to explain large language model fine-tuning; not to serve as replacement for human expertise.
+            ⚠️ **Intended Use**: this app and its [supporting models](https://huggingface.co/models?search=huggingfaceh4/starchat) are provided as educational tools to explain large language model fine-tuning; not to serve as replacement for human expertise.
 
-            ⚠️ **Known Failure Modes**: this alpha version of **StarChat** has not been aligned to human preferences with techniques like RLHF, so the model can produce problematic outputs (especially when prompted to do so). Since the base model was pretrained on a large corpus of code, it may produce code snippets that are syntactically valid but semantically incorrect.  For example, it may produce code that does not compile or that produces incorrect results.  It may also produce code that is vulnerable to security exploits.  We have observed the model also has a tendency to produce false URLs which should be carefully inspected before clicking. For more details on the model's limitations in terms of factuality and biases, see the [model card](https://huggingface.co/HuggingFaceH4/starchat-alpha#bias-risks-and-limitations).
+            ⚠️ **Known Failure Modes**: the alpha and beta version of **StarChat** have not been aligned to human preferences with techniques like RLHF, so they can produce problematic outputs (especially when prompted to do so). Since the base model was pretrained on a large corpus of code, it may produce code snippets that are syntactically valid but semantically incorrect.  For example, it may produce code that does not compile or that produces incorrect results.  It may also produce code that is vulnerable to security exploits.  We have observed the model also has a tendency to produce false URLs which should be carefully inspected before clicking. For more details on the model's limitations in terms of factuality and biases, see the [model card](https://huggingface.co/HuggingFaceH4/starchat-alpha#bias-risks-and-limitations).
 
-            ⚠️ **Data Collection**: by default, we are collecting the prompts entered in this app to further improve and evaluate the model. Do **NOT** share any personal or sensitive information while using the app! You can opt out of this data collection by removing the checkbox below.
+            ⚠️ **Data Collection**: by default, we are collecting the prompts entered in this app to further improve and evaluate the models. Do **NOT** share any personal or sensitive information while using the app! You can opt out of this data collection by removing the checkbox below.
     """
             )
 
@@ -225,6 +235,10 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             label="Store data",
             info="You agree to the storage of your prompt and generated text for research and development purposes:",
         )
+
+    with gr.Row():
+        selected_model = gr.Radio(choices=model_names, value=model_names[1], label="Select a model")
+
     with gr.Accordion(label="System Prompt", open=False, elem_id="parameters-accordion"):
         system_message = gr.Textbox(
             elem_id="system-message",
@@ -312,6 +326,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
     user_message.submit(
         generate,
         inputs=[
+            selected_model,
             system_message,
             user_message,
             chatbot,
@@ -324,11 +339,13 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             do_save,
         ],
         outputs=[chatbot, history, last_user_message, user_message],
+        show_progress=False,
     )
 
     send_button.click(
         generate,
         inputs=[
+            selected_model,
             system_message,
             user_message,
             chatbot,
@@ -341,9 +358,11 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             do_save,
         ],
         outputs=[chatbot, history, last_user_message, user_message],
+        show_progress=False,
     )
 
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
+    selected_model.change(clear_chat, outputs=[chatbot, history])
     # share_button.click(None, [], [], _js=share_js)
 
 demo.queue(concurrency_count=16).launch(debug=True)
