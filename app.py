@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import re
 import shutil
 
 import gradio as gr
@@ -16,7 +17,7 @@ API_TOKEN = os.environ.get("API_TOKEN", None)
 
 model2endpoint = {
     "starchat-alpha": "https://api-inference.huggingface.co/models/HuggingFaceH4/starcoderbase-finetuned-oasst1",
-    "starchat-beta": "https://ddimh86h0wqthbhy.us-east-1.aws.endpoints.huggingface.cloud",
+    "starchat-beta": "https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta",
 }
 model_names = list(model2endpoint.keys())
 
@@ -70,6 +71,15 @@ def get_total_inputs(inputs, chatbot, preprompt, user_name, assistant_name, sep)
     total_inputs = preprompt + "".join(past) + inputs + sep + assistant_name.rstrip()
 
     return total_inputs
+
+
+def wrap_html_code(text):
+    pattern = r"<.*?>"
+    matches = re.findall(pattern, text)
+    if len(matches) > 0:
+        return f"```{text}```"
+    else:
+        return text
 
 
 def has_no_history(chatbot, history):
@@ -156,7 +166,10 @@ def generate(
         else:
             history[-1] = output
 
-        chat = [(history[i].strip(), history[i + 1].strip()) for i in range(0, len(history) - 1, 2)]
+        chat = [
+            (wrap_html_code(history[i].strip()), wrap_html_code(history[i + 1].strip()))
+            for i in range(0, len(history) - 1, 2)
+        ]
 
         yield chat, history, user_message, ""
 
