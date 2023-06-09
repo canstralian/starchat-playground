@@ -192,7 +192,13 @@ examples = [
 def clear_chat():
     return [], []
 
-
+def delete_last_turn(chat, history):
+    if chat and history:
+        chat.pop(-1)
+        history.pop(-1)
+        history.pop(-1)
+    return chat, history
+    
 def process_example(args):
     for [x, y] in generate(args):
         pass
@@ -262,6 +268,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 send_button = gr.Button("Send", elem_id="send-btn", visible=True)
 
                 # regenerate_button = gr.Button("Regenerate", elem_id="send-btn", visible=True)
+                delete_turn_button = gr.Button("Delete last turn", elem_id="delete-btn", visible=True)
 
                 clear_chat_button = gr.Button("Clear chat", elem_id="clear-btn", visible=True)
 
@@ -364,6 +371,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
         outputs=[chatbot, history, last_user_message, user_message],
     )
 
+    delete_turn_button.click(delete_last_turn, [chatbot, history], [chatbot, history])
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
     selected_model.change(clear_chat, outputs=[chatbot, history])
     # share_button.click(None, [], [], _js=share_js)
