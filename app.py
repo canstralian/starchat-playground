@@ -1,11 +1,11 @@
 import datetime
-import json
 import os
 import re
-import shutil
+from io import StringIO
 
 import gradio as gr
-from huggingface_hub import Repository
+import pandas as pd
+from huggingface_hub import upload_file
 from text_generation import Client
 
 from dialogues import DialogueTemplate
@@ -14,43 +14,33 @@ from share_btn import (community_icon_html, loading_icon_html, share_btn_css,
 
 HF_TOKEN = os.environ.get("HF_TOKEN", None)
 API_TOKEN = os.environ.get("API_TOKEN", None)
+DIALOGUES_DATASET = "HuggingFaceH4/starchat_playground_dialogues"
 
 model2endpoint = {
     "starchat-alpha": "https://api-inference.huggingface.co/models/HuggingFaceH4/starcoderbase-finetuned-oasst1",
-    "starchat-beta": "https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta",
+    "starchat-beta": "https://ddimh86h0wqthbhy.us-east-1.aws.endpoints.huggingface.cloud",
 }
 model_names = list(model2endpoint.keys())
 
-repo = None
-if HF_TOKEN:
-    try:
-        shutil.rmtree("./data/")
-    except:
-        pass
-
-    repo = Repository(
-        local_dir="./data/",
-        clone_from="HuggingFaceH4/starchat_playground_dialogues",
-        use_auth_token=HF_TOKEN,
-        repo_type="dataset",
-    )
-    repo.git_pull()
-
 
 def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs, model):
-    current_hour = now.strftime("%Y-%m-%d_%H")
-    file_name = f"prompts_{current_hour}.jsonl"
+    buffer = StringIO()
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+    file_name = f"prompts_{timestamp}.jsonl"
+    data = {"model": model, "inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}
+    pd.DataFrame([data]).to_json(buffer, orient="records", lines=True)
 
-    if repo is not None:
-        repo.git_pull(rebase=True)
-        with open(os.path.join("data", file_name), "a", encoding="utf-8") as f:
-            json.dump(
-                {"model": model, "inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs},
-                f,
-                ensure_ascii=False,
-            )
-            f.write("\n")
-        repo.push_to_hub()
+    # Push to Hub
+    upload_file(
+        path_in_repo=f"{now.date()}/{now.hour}/{file_name}",
+        path_or_fileobj=buffer.getvalue().encode(),
+        repo_id=DIALOGUES_DATASET,
+        token=HF_TOKEN,
+        repo_type="dataset",
+    )
+
+    # Clean and rerun
+    buffer.close()
 
 
 def get_total_inputs(inputs, chatbot, preprompt, user_name, assistant_name, sep):
