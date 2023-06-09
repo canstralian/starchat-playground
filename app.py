@@ -18,7 +18,7 @@ DIALOGUES_DATASET = "HuggingFaceH4/starchat_playground_dialogues"
 
 model2endpoint = {
     "starchat-alpha": "https://api-inference.huggingface.co/models/HuggingFaceH4/starcoderbase-finetuned-oasst1",
-    "starchat-beta": "https://ddimh86h0wqthbhy.us-east-1.aws.endpoints.huggingface.cloud",
+    "starchat-beta": "https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta",
 }
 model_names = list(model2endpoint.keys())
 
@@ -136,7 +136,7 @@ def generate(
         top_p=top_p,
         repetition_penalty=repetition_penalty,
         do_sample=True,
-        truncate=999,
+        truncate=4096,
         seed=42,
         stop_sequences=["<|end|>"],
     )
@@ -295,9 +295,9 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 )
                 max_new_tokens = gr.Slider(
                     label="Max new tokens",
-                    value=512,
+                    value=1024,
                     minimum=0,
-                    maximum=1024,
+                    maximum=2048,
                     step=4,
                     interactive=True,
                     info="The maximum numbers of new tokens",
