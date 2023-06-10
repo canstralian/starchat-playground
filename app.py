@@ -192,13 +192,15 @@ examples = [
 def clear_chat():
     return [], []
 
+
 def delete_last_turn(chat, history):
     if chat and history:
         chat.pop(-1)
         history.pop(-1)
         history.pop(-1)
     return chat, history
-    
+
+
 def process_example(args):
     for [x, y] in generate(args):
         pass

@@ -62,7 +62,7 @@ class DialogueTemplate(ModelHubMixin):
                 prompt += self.user_token + "\n" + message["content"] + self.end_token + "\n"
             else:
                 prompt += self.assistant_token + "\n" + message["content"] + self.end_token + "\n"
-        prompt += self.assistant_token
+        prompt += self.assistant_token + "\n"
         return prompt
 
     def get_dialogue(self):
