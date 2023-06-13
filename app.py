@@ -92,6 +92,7 @@ def generate(
     client = Client(
         model2endpoint[model_name],
         headers={"Authorization": f"Bearer {API_TOKEN}"},
+        timeout=60,
     )
     # Don't return meaningless message when the input is empty
     if not user_message:
