@@ -1,7 +1,7 @@
 import datetime
 import os
-import re
 import random
+import re
 from io import StringIO
 
 import gradio as gr
@@ -25,8 +25,8 @@ model_names = list(model2endpoint.keys())
 
 
 def randomize_seed_generator():
-  seed = random.randint(0, 1000000)
-  return seed
+    seed = random.randint(0, 1000000)
+    return seed
 
 
 def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs, model):
@@ -107,9 +107,9 @@ def generate(
 
     if not RETRY_FLAG:
         history.append(user_message)
-        seed=42
+        seed = 42
     else:
-        seed=randomize_seed_generator()
+        seed = randomize_seed_generator()
 
     past_messages = []
     for data in chatbot:
@@ -221,28 +221,28 @@ def process_example(args):
 
 # Regenerate response
 def retry_last_answer(
-      selected_model,       
-      system_message,
-      user_message,
-      chat,
-      history,
-      temperature,
-      top_k,
-      top_p,
-      max_new_tokens,
-      repetition_penalty,
-      do_save):
-          
+    selected_model,
+    system_message,
+    user_message,
+    chat,
+    history,
+    temperature,
+    top_k,
+    top_p,
+    max_new_tokens,
+    repetition_penalty,
+    do_save,
+):
     if chat and history:
-        # Removing the previous conversation from chat 
+        # Removing the previous conversation from chat
         chat.pop(-1)
-        # Removing bot response from the history 
+        # Removing bot response from the history
         history.pop(-1)
-        # Setting up a flag to capture a retry 
+        # Setting up a flag to capture a retry
         RETRY_FLAG = True
         # Getting last message from user
         user_message = history[-1]
-        
+
     yield from generate(
         RETRY_FLAG,
         selected_model,
@@ -255,7 +255,8 @@ def retry_last_answer(
         top_p,
         max_new_tokens,
         repetition_penalty,
-        do_save)
+        do_save,
+    )
 
 
 title = """<h1 align="center">⭐ StarChat Playground 💬</h1>"""
@@ -321,7 +322,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 send_button = gr.Button("Send", elem_id="send-btn", visible=True)
 
                 regenerate_button = gr.Button("Regenerate", elem_id="retry-btn", visible=True)
-                
+
                 delete_turn_button = gr.Button("Delete last turn", elem_id="delete-btn", visible=True)
 
                 clear_chat_button = gr.Button("Clear chat", elem_id="clear-btn", visible=True)
@@ -356,9 +357,9 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 )
                 max_new_tokens = gr.Slider(
                     label="Max new tokens",
-                    value=1024,
+                    value=512,
                     minimum=0,
-                    maximum=2048,
+                    maximum=1024,
                     step=4,
                     interactive=True,
                     info="The maximum numbers of new tokens",
@@ -387,7 +388,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
 
     history = gr.State([])
     RETRY_FLAG = gr.Checkbox(value=False, visible=False)
-    
+
     # To clear out "message" input textbox and use this to regenerate message
     last_user_message = gr.State("")
 
@@ -430,8 +431,8 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
     )
 
     regenerate_button.click(
-        retry_last_answer, 
-        inputs = [
+        retry_last_answer,
+        inputs=[
             selected_model,
             system_message,
             user_message,
@@ -444,9 +445,9 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             repetition_penalty,
             do_save,
         ],
-        outputs = [chatbot, history, last_user_message, user_message]
+        outputs=[chatbot, history, last_user_message, user_message],
     )
-    
+
     delete_turn_button.click(delete_last_turn, [chatbot, history], [chatbot, history])
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
     selected_model.change(clear_chat, outputs=[chatbot, history])
