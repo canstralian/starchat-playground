@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+import random
 from io import StringIO
 
 import gradio as gr
@@ -21,6 +22,11 @@ model2endpoint = {
     "starchat-beta": "https://api-inference.huggingface.co/models/HuggingFaceH4/starchat-beta",
 }
 model_names = list(model2endpoint.keys())
+
+
+def randomize_seed_generator():
+  seed = random.randint(0, 1000000)
+  return seed
 
 
 def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs, model):
@@ -77,6 +83,7 @@ def has_no_history(chatbot, history):
 
 
 def generate(
+    RETRY_FLAG,
     model_name,
     system_message,
     user_message,
@@ -98,7 +105,11 @@ def generate(
     if not user_message:
         print("Empty input")
 
-    history.append(user_message)
+    if not RETRY_FLAG:
+        history.append(user_message)
+        seed=42
+    else:
+        seed=randomize_seed_generator()
 
     past_messages = []
     for data in chatbot:
@@ -138,7 +149,7 @@ def generate(
         repetition_penalty=repetition_penalty,
         do_sample=True,
         truncate=4096,
-        seed=42,
+        seed=seed,
         stop_sequences=["<|end|>"],
     )
 
@@ -208,6 +219,45 @@ def process_example(args):
     return [x, y]
 
 
+# Regenerate response
+def retry_last_answer(
+      selected_model,       
+      system_message,
+      user_message,
+      chat,
+      history,
+      temperature,
+      top_k,
+      top_p,
+      max_new_tokens,
+      repetition_penalty,
+      do_save):
+          
+    if chat and history:
+        # Removing the previous conversation from chat 
+        chat.pop(-1)
+        # Removing bot response from the history 
+        history.pop(-1)
+        # Setting up a flag to capture a retry 
+        RETRY_FLAG = True
+        # Getting last message from user
+        user_message = history[-1]
+        
+    yield from generate(
+        RETRY_FLAG,
+        selected_model,
+        system_message,
+        user_message,
+        chat,
+        history,
+        temperature,
+        top_k,
+        top_p,
+        max_new_tokens,
+        repetition_penalty,
+        do_save)
+
+
 title = """<h1 align="center">⭐ StarChat Playground 💬</h1>"""
 custom_css = """
 #banner-image {
@@ -270,7 +320,8 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             with gr.Row():
                 send_button = gr.Button("Send", elem_id="send-btn", visible=True)
 
-                # regenerate_button = gr.Button("Regenerate", elem_id="send-btn", visible=True)
+                regenerate_button = gr.Button("Regenerate", elem_id="retry-btn", visible=True)
+                
                 delete_turn_button = gr.Button("Delete last turn", elem_id="delete-btn", visible=True)
 
                 clear_chat_button = gr.Button("Clear chat", elem_id="clear-btn", visible=True)
@@ -335,12 +386,15 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
                 )
 
     history = gr.State([])
+    RETRY_FLAG = gr.Checkbox(value=False, visible=False)
+    
     # To clear out "message" input textbox and use this to regenerate message
     last_user_message = gr.State("")
 
     user_message.submit(
         generate,
         inputs=[
+            RETRY_FLAG,
             selected_model,
             system_message,
             user_message,
@@ -359,6 +413,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
     send_button.click(
         generate,
         inputs=[
+            RETRY_FLAG,
             selected_model,
             system_message,
             user_message,
@@ -374,6 +429,24 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
         outputs=[chatbot, history, last_user_message, user_message],
     )
 
+    regenerate_button.click(
+        retry_last_answer, 
+        inputs = [
+            selected_model,
+            system_message,
+            user_message,
+            chatbot,
+            history,
+            temperature,
+            top_k,
+            top_p,
+            max_new_tokens,
+            repetition_penalty,
+            do_save,
+        ],
+        outputs = [chatbot, history, last_user_message, user_message]
+    )
+    
     delete_turn_button.click(delete_last_turn, [chatbot, history], [chatbot, history])
     clear_chat_button.click(clear_chat, outputs=[chatbot, history])
     selected_model.change(clear_chat, outputs=[chatbot, history])
