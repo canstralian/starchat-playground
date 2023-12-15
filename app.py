@@ -29,24 +29,24 @@ def randomize_seed_generator():
     return seed
 
 
-def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs, model):
-    buffer = StringIO()
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
-    file_name = f"prompts_{timestamp}.jsonl"
-    data = {"model": model, "inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}
-    pd.DataFrame([data]).to_json(buffer, orient="records", lines=True)
+# def save_inputs_and_outputs(now, inputs, outputs, generate_kwargs, model):
+#     buffer = StringIO()
+#     timestamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+#     file_name = f"prompts_{timestamp}.jsonl"
+#     data = {"model": model, "inputs": inputs, "outputs": outputs, "generate_kwargs": generate_kwargs}
+#     pd.DataFrame([data]).to_json(buffer, orient="records", lines=True)
 
-    # Push to Hub
-    upload_file(
-        path_in_repo=f"{now.date()}/{now.hour}/{file_name}",
-        path_or_fileobj=buffer.getvalue().encode(),
-        repo_id=DIALOGUES_DATASET,
-        token=HF_TOKEN,
-        repo_type="dataset",
-    )
+#     # Push to Hub
+#     upload_file(
+#         path_in_repo=f"{now.date()}/{now.hour}/{file_name}",
+#         path_or_fileobj=buffer.getvalue().encode(),
+#         repo_id=DIALOGUES_DATASET,
+#         token=HF_TOKEN,
+#         repo_type="dataset",
+#     )
 
-    # Clean and rerun
-    buffer.close()
+#     # Clean and rerun
+#     buffer.close()
 
 
 def get_total_inputs(inputs, chatbot, preprompt, user_name, assistant_name, sep):
@@ -94,7 +94,7 @@ def generate(
     top_p,
     max_new_tokens,
     repetition_penalty,
-    do_save=True,
+    # do_save=True,
 ):
     client = Client(
         model2endpoint[model_name],
@@ -177,14 +177,14 @@ def generate(
 
         yield chat, history, user_message, ""
 
-    if HF_TOKEN and do_save:
-        try:
-            now = datetime.datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            print(f"[{current_time}] Pushing prompt and completion to the Hub")
-            save_inputs_and_outputs(now, prompt, output, generate_kwargs, model_name)
-        except Exception as e:
-            print(e)
+    # if HF_TOKEN and do_save:
+    #     try:
+    #         now = datetime.datetime.now()
+    #         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    #         print(f"[{current_time}] Pushing prompt and completion to the Hub")
+    #         save_inputs_and_outputs(now, prompt, output, generate_kwargs, model_name)
+    #     except Exception as e:
+    #         print(e)
 
     return chat, history, user_message, ""
 
@@ -231,7 +231,7 @@ def retry_last_answer(
     top_p,
     max_new_tokens,
     repetition_penalty,
-    do_save,
+    # do_save,
 ):
     if chat and history:
         # Removing the previous conversation from chat
@@ -255,7 +255,7 @@ def retry_last_answer(
         top_p,
         max_new_tokens,
         repetition_penalty,
-        do_save,
+        # do_save,
     )
 
 
@@ -294,12 +294,12 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
     """
             )
 
-    with gr.Row():
-        do_save = gr.Checkbox(
-            value=True,
-            label="Store data",
-            info="You agree to the storage of your prompt and generated text for research and development purposes:",
-        )
+    # with gr.Row():
+    #     do_save = gr.Checkbox(
+    #         value=True,
+    #         label="Store data",
+    #         info="You agree to the storage of your prompt and generated text for research and development purposes:",
+    #     )
 
     with gr.Row():
         selected_model = gr.Radio(choices=model_names, value=model_names[1], label="Select a model")
@@ -406,7 +406,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             top_p,
             max_new_tokens,
             repetition_penalty,
-            do_save,
+            # do_save,
         ],
         outputs=[chatbot, history, last_user_message, user_message],
     )
@@ -425,7 +425,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             top_p,
             max_new_tokens,
             repetition_penalty,
-            do_save,
+            # do_save,
         ],
         outputs=[chatbot, history, last_user_message, user_message],
     )
@@ -443,7 +443,7 @@ with gr.Blocks(analytics_enabled=False, css=custom_css) as demo:
             top_p,
             max_new_tokens,
             repetition_penalty,
-            do_save,
+            # do_save,
         ],
         outputs=[chatbot, history, last_user_message, user_message],
     )
